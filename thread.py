@@ -1,3 +1,4 @@
+import argparse
 import threading
 import time
 
@@ -108,17 +109,20 @@ if __name__ == "__main__":
             thread_perf[idx][0] += total_spin_time
             thread_perf[idx][1] += thread_time
 
+    start_program_time = time.perf_counter()
     for _ in range(num_iters):
         with ThreadRunner(num_threads) as runner:
             print(runner)
             # give each thread a thread function and arguments
             runner.run([thread_func]*num_threads, [(idx,) for idx in range(1, num_threads+1)])
+    end_program_time = time.perf_counter()
+    avg_program_time = (end_program_time - start_program_time) / num_iters
 
-    # print(thread_perf)
+    print("--------------")
+    print(f"Average Program Time {avg_program_time:.3e}")
+    print("--------------")
     for i, (total_spin_time, thread_time) in thread_perf.items():
         total_spin_time /= num_iters
         thread_time /= num_iters
-        thread_time = '{:.3e}'.format(thread_time)
-        total_spin_time = '{:.3e}'.format(total_spin_time)
-        print(f"Total Spin Time {i}: {total_spin_time}")
-        print(f"Total Thread Time {i}: {thread_time}")
+        print(f"Average Spin Time {i}: {total_spin_time:.3e}")
+        print(f"Average Thread Time {i}: {thread_time:.3e}")
