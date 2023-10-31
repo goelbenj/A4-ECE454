@@ -41,12 +41,65 @@ class ThreadRunner:
                 thread.join()
 
 
+class Queue:
+    def __init__(self):
+        self.q = []
+    def push(self, element):
+        if element not in self.q:
+            self.q.append(element)
+    def pop(self):
+        if len(self.q):
+            return self.q.pop(0)
+    def print(self):
+        print(self.q)
+
+class Semaphore:
+    def __init__(self, value):
+        self.value = value
+        self.queue = Queue()
+        self._lock = threading.Lock()
+
+    def P(self, thread):
+        self._lock.acquire()
+        if self.value > 0:
+            self.value -= 1
+            print(self.value)
+            self._lock.release()
+            return True
+        else:
+            # fake semaphore lock
+            print(f"WAITING {thread}")
+            self.queue.push(thread)
+            self._lock.release()
+            return False
+            #thread.wait()
+
+    def V(self, idx):
+        self._lock.acquire()
+        if self.value == 0:
+            thread = self.queue.pop()
+            #thread.notify()
+        self.value += 1
+        self._lock.release()
+
+
 if __name__ == "__main__":
+
+    semaphore = Semaphore(value=2)
+
     def thread_func(idx):
         print(f"ENTER FUNC {idx}")
-        time.sleep(0.5)
+        while not semaphore.P(idx):
+            # spin on semaphore's lock
+            time.sleep(0.2)
+        # do work
+        time.sleep(1.0)
+        semaphore.V(idx)
         print(f"EXIT FUNC {idx}")
 
-    with ThreadRunner(num_threads=3) as runner:
+
+    num_threads = 2
+    with ThreadRunner(num_threads) as runner:
         print(runner)
-        runner.run([thread_func]*3, [(idx,) for idx in range(3)])
+        # give each thread a thread function and arguments
+        runner.run([thread_func]*num_threads, [(idx,) for idx in range(num_threads)])
