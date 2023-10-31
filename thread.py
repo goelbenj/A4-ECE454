@@ -56,6 +56,7 @@ class Queue:
 
 class Semaphore:
     def __init__(self, value):
+        self.total_value = value
         self.value = value
         self.queue = Queue()
         self._lock = threading.Lock()
@@ -76,7 +77,12 @@ class Semaphore:
         self._lock.acquire()
         _ = self.queue.pop()
         self.value += 1
+        self.print_queue_situation()
         self._lock.release()
+
+    def print_queue_situation(self):
+        print(f"QUEUE STATUS: {self.queue.q}")
+        print(f"RESOURCE STATUS: {self.value}/{self.total_value}")
 
 
 if __name__ == "__main__":
