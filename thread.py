@@ -85,13 +85,13 @@ if __name__ == "__main__":
     semaphore = Semaphore(value=num_resources)
 
     def thread_func(idx):
-        print(f"ENTER FUNC {idx}")
         while not semaphore.P(idx):
             # spin on semaphore's lock
             time.sleep(0.1)
+        print(f"ENTER FUNC {idx}")
         # do work
         time.sleep(1.0)
-        semaphore.V(idx)
+        semaphore.V()
         print(f"EXIT FUNC {idx}")
 
     with ThreadRunner(num_threads) as runner:
