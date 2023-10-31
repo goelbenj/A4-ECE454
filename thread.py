@@ -81,20 +81,44 @@ class Semaphore:
 if __name__ == "__main__":
     num_resources = 3
     num_threads = 10
+    num_iters = 5
+    thread_perf = dict()
 
     semaphore = Semaphore(value=num_resources)
 
     def thread_func(idx):
+        start_spin_time = time.perf_counter()
         while not semaphore.P(idx):
             # spin on semaphore's lock
             time.sleep(0.1)
+        end_spin_time = time.perf_counter()
         print(f"ENTER FUNC {idx}")
         # do work
-        time.sleep(1.0)
+        i = 0
+        while (i < 1_000_000):
+            # getting rich
+            i += 1
         semaphore.V()
         print(f"EXIT FUNC {idx}")
+        thread_time = time.thread_time()
+        total_spin_time = (end_spin_time - start_spin_time)
+        if idx not in thread_perf:
+            thread_perf[idx] = [total_spin_time, thread_time]
+        else:
+            thread_perf[idx][0] += total_spin_time
+            thread_perf[idx][1] += thread_time
 
-    with ThreadRunner(num_threads) as runner:
-        print(runner)
-        # give each thread a thread function and arguments
-        runner.run([thread_func]*num_threads, [(idx,) for idx in range(1, num_threads+1)])
+    for _ in range(num_iters):
+        with ThreadRunner(num_threads) as runner:
+            print(runner)
+            # give each thread a thread function and arguments
+            runner.run([thread_func]*num_threads, [(idx,) for idx in range(1, num_threads+1)])
+
+    # print(thread_perf)
+    for i, (total_spin_time, thread_time) in thread_perf.items():
+        total_spin_time /= num_iters
+        thread_time /= num_iters
+        thread_time = '{:.3e}'.format(thread_time)
+        total_spin_time = '{:.3e}'.format(total_spin_time)
+        print(f"Total Spin Time {i}: {total_spin_time}")
+        print(f"Total Thread Time {i}: {thread_time}")
