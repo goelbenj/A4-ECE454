@@ -41,7 +41,6 @@ class ThreadRunner:
             if thread.ident is not None:
                 thread.join()
 
-
 class Queue:
     def __init__(self):
         self.q = []
@@ -84,11 +83,23 @@ class Semaphore:
         print(f"QUEUE STATUS: {self.queue.q}")
         print(f"RESOURCE STATUS: {self.value}/{self.total_value}")
 
-
 if __name__ == "__main__":
+    #default values
     num_resources = 3
     num_threads = 10
     num_iters = 5
+
+    #CLI user input parser for modifying parameters
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--customers", nargs = 1, metavar = "customers", type = int, help = "The number of banking customers (threads)", default = num_threads)
+    parser.add_argument("-t", "--tellers", nargs = 1, metavar = "tellers", type = int, help = "The number of banking tellers (shared resources)", default = num_resources)
+    parser.add_argument("-i", "--iterations", nargs = 1, metavar = "iterations", type = int, help = "The number of iterations to average over", default = num_iters)
+    args = parser.parse_args()
+
+    num_resources = args.tellers[0]
+    num_threads = args.customers[0]
+    num_iters = args.iterations[0]
+    
     thread_perf = dict()
 
     semaphore = Semaphore(value=num_resources)
