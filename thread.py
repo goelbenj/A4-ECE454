@@ -159,6 +159,8 @@ if __name__ == "__main__":
             print(runner)
             # give each thread a thread function and arguments
             runner.run([thread_func]*num_threads, [(idx,) for idx in range(num_threads)])
+        semaphore = Semaphore(value=num_resources, idx=list(range(num_threads)))
+
     #program performance logging
     end_program_time = time.perf_counter()
     avg_program_time = (end_program_time - start_program_time) / num_iters
