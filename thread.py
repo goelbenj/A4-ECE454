@@ -91,14 +91,14 @@ if __name__ == "__main__":
 
     #CLI user input parser for modifying parameters
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--customers", nargs = 1, metavar = "customers", type = int, help = "The number of banking customers (threads)", default = num_threads)
-    parser.add_argument("-t", "--tellers", nargs = 1, metavar = "tellers", type = int, help = "The number of banking tellers (shared resources)", default = num_resources)
-    parser.add_argument("-i", "--iterations", nargs = 1, metavar = "iterations", type = int, help = "The number of iterations to average over", default = num_iters)
+    parser.add_argument("-c", "--customers", metavar = "customers", type = int, help = "The number of banking customers (threads)", default = num_threads)
+    parser.add_argument("-t", "--tellers", metavar = "tellers", type = int, help = "The number of banking tellers (shared resources)", default = num_resources)
+    parser.add_argument("-i", "--iterations", metavar = "iterations", type = int, help = "The number of iterations to average over", default = num_iters)
     args = parser.parse_args()
 
-    num_resources = args.tellers[0]
-    num_threads = args.customers[0]
-    num_iters = args.iterations[0]
+    num_resources = args.tellers
+    num_threads = args.customers
+    num_iters = args.iterations
     
     thread_perf = dict()
 
